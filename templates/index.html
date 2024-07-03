@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        #imageDisplay {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #imageDisplay img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #predictionResult {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #predictedImage {
+            margin-top: 20px;
+            max-width: 100%;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #chatbotBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body> 
+    <div class="container">
+        <h2>Image Classification</h2>
+        <button id="chatbotBtn" class="btn" onclick="goToChatbot()">Chatbot</button>
+        <form id="imageForm" enctype="multipart/form-data" method="post" action="">
+            {% csrf_token %}
+            <label for="imageFile" class="btn">Upload Image</label>
+            <input type="file" name="imageFile" id="imageFile" accept="image/*" onchange="uploadImage()">
+            <button type="button" class="btn" onclick="predictImage()">Predict</button>
+        </form>
+        <div id="imageDisplay"></div>
+        <div id="predictionResult"></div> 
+        <img id="predictedImage" src="{% static 'images/default.png' %}" alt="Predicted Image"> <!-- Display predicted image here -->  
+    </div>
+
+    <script>
+        function uploadImage() {
+            var formData = new FormData();
+            var fileInput = document.getElementById('imageFile');
+            var imageDisplay = document.getElementById('imageDisplay');
+
+            formData.append('imageFile', fileInput.files[0]);
+
+            // Display the selected image
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                imageDisplay.innerHTML = '';
+                imageDisplay.appendChild(img);
+            }
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function predictImage() {
+            var formData = new FormData();
+            var fileInput = document.getElementById('imageFile');
+            var predictionResult = document.getElementById('predictionResult');
+            var predictedImage = document.getElementById('predictedImage');
+
+            formData.append('imageFile', fileInput.files[0]);
+
+            // Submit the form with image data to the server for prediction
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '', true);
+            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    // Display the prediction result
+                    var response = JSON.parse(xhr.responseText);
+                    predictionResult.textContent = 'Prediction: ' + response.prediction;
+                    // Display the predicted image
+                    predictedImage.src = 'data:image/png;base64,' + JSON.parse(xhr.responseText).mask_image;
+                } else {
+                    console.error('Error:', xhr.statusText);
+                    predictionResult.textContent = 'Error occurred during prediction.';
+                }
+            };
+            xhr.send(formData);
+        }
+
+        function goToChatbot() {
+            window.location.href = "{% url 'chatbot' %}";
+        }
+    </script>
+</body>
+</html>

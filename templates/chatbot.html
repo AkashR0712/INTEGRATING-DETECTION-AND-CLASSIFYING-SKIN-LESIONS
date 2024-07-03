@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chatbot</title>
+    <style>
+        /* Chat container */
+        .chat-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 400px;
+            margin-bottom: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Chat messages */
+        .chat-messages {
+            padding: 10px;
+            overflow-y: scroll;
+            height: 100%;
+        }
+        
+        /* User message */
+        .user-message {
+            background-color: #f0f0f0;
+            color: #333;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+            align-self: flex-end; /* Align user messages to the right */
+        }
+        
+        /* Chatbot message */
+        .chatbot-message {
+            background-color: #e5f5fc;
+            color: #31708f;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-width: 70%;
+            word-wrap: break-word;
+            align-self: flex-start; /* Align chatbot messages to the left */
+        }
+        
+        /* Input container */
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Input field */
+        .input-field {
+            flex: 1; /* Take remaining space */
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+            font-size: 16px;
+            outline: none; /* Remove default outline */
+        }
+        
+        /* Send button */
+        .send-btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            outline: none; /* Remove default outline */
+        }
+        
+        /* Send button on hover */
+        .send-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Interactive Chatbot</h1>
+    
+    <div class="chat-container" id="chat-container"> 
+        <div class="chat-messages" id="chat-messages">
+            <div class="chatbot-message">Welcome to the Interactive Chatbot. Do you want to diagnose a skin condition or talk to the chatbot?</div>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <input type="text" id="user-input" class="input-field" placeholder="Type 'Diagnose' to know more about your symptoms">
+        <button onclick="sendMessage()" class="send-btn">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            var userInput = document.getElementById('user-input').value;
+            addUserMessage(userInput);
+            fetch('/chatbot/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: 'user_input=' + encodeURIComponent(userInput)
+            })
+            .then(response => response.json())
+            .then(data => {
+                addChatbotMessage(data.messages);
+            });
+            document.getElementById('user-input').value = ''; // Clear input field
+        }
+
+        function addUserMessage(message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var userMessageElement = document.createElement('div');
+            userMessageElement.className = 'user-message';
+            userMessageElement.innerHTML = message;
+            chatMessages.appendChild(userMessageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+
+        function addChatbotMessage(message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var chatbotMessageElement = document.createElement('div');
+            chatbotMessageElement.className = 'chatbot-message';
+            chatbotMessageElement.innerHTML = message;
+            chatMessages.appendChild(chatbotMessageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        fbreak;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>
