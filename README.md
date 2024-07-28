@@ -1,11 +1,12 @@
 ## INTEGRATING DETECTION AND CLASSIFYING SKIN LESIONS:
 A COMPREHENSIVE APPROACH BY INTEGRATING IMAGE PROCESSING AND PREDICTIVE MODELLING FOR EARLY DIAGNOSIS AND PROGNOSIS.
-##Team Members:
+
+## Team Members:
 1. Akash R 
 2. Mohamed Anwardheen M
 3. Vignesh S
 
-### ABSTRACT : 
+## ABSTRACT : 
 Skin cancer, particularly malignant skin lesions, poses a significant threat, emphasizing
 the crucial need for early detection and treatment. Using HAM10000 dermatoscopic image dataset to
 identify and classify the various types of skin lesions. Initial pre-processing involves the application of
